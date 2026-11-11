@@ -1,37 +1,34 @@
 //
-//  ViewModel.swift
-//  appintent
+//  TimerViewModel.swift
+//  App Intent Demo
 //
 //  Created by Jorge Salcedo on 10/11/24.
 //
 
 import Foundation
+import Observation
 
-class TimerViewModel: ObservableObject {
+@MainActor
+@Observable
+final class TimerViewModel {
     static let shared = TimerViewModel()
-    @Published var remainingTime: Int = 0
-    private var endDate: Date?
 
-    /// Sets the timer duration based on seconds
+    private static let endDateKey = "endDate"
+
+    private(set) var endDate: Date? {
+        didSet { UserDefaults.standard.set(endDate, forKey: Self.endDateKey) }
+    }
+
+    private init() {
+        endDate = UserDefaults.standard.object(forKey: Self.endDateKey) as? Date
+    }
+
+    var remainingTime: Int {
+        guard let endDate else { return 0 }
+        return max(Int(endDate.timeIntervalSinceNow.rounded(.up)), 0)
+    }
+
     func addTimer(seconds: Int) {
-        DispatchQueue.main.async {
-            self.endDate = Date().addingTimeInterval(TimeInterval(seconds))
-            self.updateRemainingTime()
-        }
-    }
-    
-    /// Dynamically calculates the remaining time based on the current date.
-    func updateRemainingTime() {
-        guard let endDate = endDate else {
-            self.remainingTime = 0
-            return
-        }
-        let now = Date()
-        let timeLeft = Int(endDate.timeIntervalSince(now))
-        self.remainingTime = max(timeLeft, 0) // Avoid negative time
-    }
-    
-    func getTimer() -> Int {
-        return self.remainingTime
+        endDate = .now.addingTimeInterval(TimeInterval(seconds))
     }
 }
