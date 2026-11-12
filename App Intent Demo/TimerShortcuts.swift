@@ -2,7 +2,7 @@
 //  TimerShortcuts.swift
 //  App Intent Demo
 //
-//  Created by Fatima Alonso on 12/3/24.
+//  Created by Jorge Salcedo on 12/3/24.
 //
 
 import AppIntents
